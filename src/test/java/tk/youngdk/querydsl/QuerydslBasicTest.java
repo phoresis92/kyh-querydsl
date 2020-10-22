@@ -1,19 +1,18 @@
 package tk.youngdk.querydsl;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import tk.youngdk.querydsl.entity.Member;
-import tk.youngdk.querydsl.entity.QMember;
 import tk.youngdk.querydsl.entity.Team;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static tk.youngdk.querydsl.entity.QMember.*;
 
 @SpringBootTest
 @Transactional
@@ -22,11 +21,11 @@ public class QuerydslBasicTest {
     @PersistenceContext
     EntityManager em;
 
-    JPAQueryFactory query;
+    JPAQueryFactory queryFactory;
 
     @BeforeEach
     public void beforeEach(){
-        query = new JPAQueryFactory(em);
+        queryFactory = new JPAQueryFactory(em);
 
         Team teamA = new Team("teamA");
         Team teamB = new Team("teamB");
@@ -57,11 +56,11 @@ public class QuerydslBasicTest {
     @Test
     public void startQuerydsl () throws Exception {
 //        QMember m = new QMember("m");
-        QMember m = QMember.member;
 
-        Member findByQuerydsl = query.select(m)
-                .from(m)
-                .where(m.username.eq("member1"))
+        Member findByQuerydsl = queryFactory
+                .select(member)
+                .from(member)
+                .where(member.username.eq("member1"))
                 .fetchOne();
 
         assertThat(findByQuerydsl.getUsername()).isEqualTo("member1");
