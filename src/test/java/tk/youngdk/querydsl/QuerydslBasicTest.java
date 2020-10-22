@@ -1,5 +1,6 @@
 package tk.youngdk.querydsl;
 
+import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,8 @@ import tk.youngdk.querydsl.entity.Team;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static tk.youngdk.querydsl.entity.QMember.*;
@@ -94,4 +97,46 @@ public class QuerydslBasicTest {
         assertThat(findMember.getAge()).isEqualTo(10);
 
     }
+
+    @Test
+    public void resultFetch() {
+//        List<Member> fetch = queryFactory
+//                .selectFrom(member)
+//                .fetch();
+//
+//        queryFactory
+//                .selectFrom(member)
+//                .fetchOne();
+//
+//        queryFactory
+//                .selectFrom(member)
+////                .limit(1).fetchOne();
+//                .fetchFirst();
+
+        QueryResults<Member> results = queryFactory
+                .selectFrom(member)
+                .fetchResults();
+
+        long total = results.getTotal();
+        long limit = results.getLimit();
+        long offset = results.getOffset();
+        List<Member> contents = results.getResults();
+
+        System.out.println("total = " + total);
+        System.out.println("limit = " + limit);
+        System.out.println("offset = " + offset);
+        System.out.println("contents = " + contents);
+
+        System.out.println("==============================");
+        System.out.println("==============================");
+        System.out.println("==============================");
+        System.out.println("==============================");
+
+        long fetchCount = queryFactory
+                .selectFrom(member)
+                .fetchCount();
+
+        System.out.println("fetchCount = " + fetchCount);
+    }
+
 }
