@@ -300,9 +300,72 @@ public class QuerydslBasicTest {
                 .where(member.username.eq(team.name))
                 .fetch();
 
+        result.stream()
+                .forEach(member -> System.out.println("member = " + member));
+
         assertThat(result)
                 .extracting("username")
                 .containsExactly("teamA", "teamB");
 
     }
+
+    /**
+     * 예) 회원과 팀을 조회하면서, 팀 이름이 teamA인 팀만 조인, 회원은 모두 조회
+     * JPQL: select m, t from Member m left join m.team t on t.name = 'teamA'
+     */
+    @Test
+    public void join_on_filtering () {
+        List<Tuple> result = queryFactory
+                .select(
+                        member,
+                        team
+                )
+                .from(member)
+                .leftJoin(member.team, team)
+//                .innerJoin(member.team, team)
+                .on(team.name.eq("teamA"))
+//                .where(team.name.eq("teamA"))
+                .fetch();
+
+        /*
+        * on 절을 확용한 조인 대상 필터링을 사용할 때,
+        * 내부조인 이면 익숙한 where 절로 해결하고,
+        * 정말 외부조인이 필요한 경우에만 이 기능을 사용하자!
+        * */
+
+        result.stream()
+                .forEach(tuple -> {
+                    System.out.println("tuple = " + tuple);
+                });
+    }
+
+    /**
+     * 연관관계 없는 엔티티 외부 조인
+     * 회원의 이름이 팀 이름과 같은 대상 외부 조인
+     * */
+    @Test
+    public void join_on_no_relation(){
+        em.persist(new Member("teamA"));
+        em.persist(new Member("teamB"));
+
+        List<Tuple> result = queryFactory
+                .select(
+                        member,
+                        team
+                )
+//                .from(member, team)
+                .from(member)
+                .leftJoin(team)
+                .on(member.username.eq(team.name))
+                .fetch();
+
+        result.stream()
+                .forEach(tuple -> System.out.println("tuple = " + tuple));
+
+//        assertThat(result)
+//                .extracting("username")
+//                .containsExactly("teamA", "teamB");
+
+    }
+
 }
